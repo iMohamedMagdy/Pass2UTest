@@ -43,6 +43,7 @@ app.get('/test-pass', async (req, res) => {
 // 🔹 Port صح مع تحديد الـ Host لـ 0.0.0.0
 const PORT = process.env.PORT || 3000;
 
+// التعديل الجوهري: إضافة '0.0.0.0'
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Backend running on port ${PORT} and accessible externally`);
+  console.log(`Backend is up and running on port ${PORT}`);
 });
