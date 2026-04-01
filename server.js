@@ -7,7 +7,7 @@ app.use(express.json());
 // ======================================
 // ⚡ Environment Variables
 // ======================================
-const API_KEY = process.env.API_KEY || "6355b99f8563ce45c198f5a9eaf45d2d"; 
+const API_KEY = process.env.API_KEY; // خليها من Railway Dashboard
 const PASS_ID = "Jn11aKQqu5TM";
 
 // ======================================
@@ -26,7 +26,7 @@ app.get('/health', (req, res) => {
 // ======================================
 app.get('/test-pass', async (req, res) => {
   if (!API_KEY) {
-    return res.status(500).json({ error: "API_KEY not set" });
+    return res.status(500).json({ error: "API_KEY not set in environment" });
   }
 
   try {
