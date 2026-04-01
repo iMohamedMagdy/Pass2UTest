@@ -22,34 +22,21 @@ app.get('/test-pass', async (req, res) => {
   const cleanKey = API_KEY.trim();
   
   try {
-    const response = await axios({
-      method: 'get',
-      url: `https://api.pass2u.net/v2/passes/${PASS_ID}`,
-      headers: { 
-        'X-Api-Key': cleanKey, // جرب الصيغة دي تحديداً
-        'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0' // بنضحك عليه ونقوله إنا متصفح
+    const response = await axios.get(
+      `https://api.pass2u.net/v2/passes/${PASS_ID}?api_key=${cleanKey}`, // بعتنا الـ Key هنا
+      {
+        headers: { 
+          'Accept': 'application/json'
+        }
       }
-    });
-
-    res.json({
-      success: true,
-      data: response.data
-    });
+    );
+    res.json({ success: true, data: response.data });
   } catch (error) {
-    // حركة ذكية: لو فشل، جرب الهيدر التاني فوراً في نفس الطلب (Fallback)
-    try {
-        const retryResponse = await axios.get(`https://api.pass2u.net/v2/passes/${PASS_ID}`, {
-            headers: { 'x-api-key': cleanKey }
-        });
-        return res.json({ success: true, note: "Worked with lowercase", data: retryResponse.data });
-    } catch (secondError) {
-        res.status(500).json({
-            success: false,
-            error: secondError.response?.data || secondError.message,
-            log: "Tried both X-Api-Key and x-api-key"
-        });
-    }
+    res.status(500).json({
+      success: false,
+      error: error.response?.data || error.message,
+      note: "Tried passing API Key in URL"
+    });
   }
 });
 // 🔹 إعدادات السيرفر لـ Railway
