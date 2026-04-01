@@ -37,6 +37,8 @@ app.get('/test-pass', async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT || 3000, () =>
-  console.log("Backend running")
-);
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Backend running on port ${PORT}`);
+});
