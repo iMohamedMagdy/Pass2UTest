@@ -24,24 +24,24 @@ app.get('/health', (req, res) => {
 // ======================================
 // ✅ Test Pass Endpoint
 // ======================================
-app.get('/test-pass', async (req, res) => {
-  if (!API_KEY) {
-    return res.status(500).json({ error: "API_KEY not set in environment" });
-  }
+// app.get('/test-pass', async (req, res) => {
+//   if (!API_KEY) {
+//     return res.status(500).json({ error: "API_KEY not set in environment" });
+//   }
 
-  try {
-    const response = await axios.get(
-      `https://api.pass2u.net/v2/pass/${PASS_ID}`,
-      { headers: { "X-API-Key": API_KEY } }
-    );
+//   try {
+//     const response = await axios.get(
+//       `https://api.pass2u.net/v2/pass/${PASS_ID}`,
+//       { headers: { "X-API-Key": API_KEY } }
+//     );
 
-    res.json(response.data);
-  } catch (error) {
-    res.status(500).json({
-      error: error.response?.data || error.message
-    });
-  }
-});
+//     res.json(response.data);
+//   } catch (error) {
+//     res.status(500).json({
+//       error: error.response?.data || error.message
+//     });
+//   }
+// });
 
 // ======================================
 // ⚡ Start Server on Railway Port
