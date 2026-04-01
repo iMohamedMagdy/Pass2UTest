@@ -19,23 +19,20 @@ app.get('/health', (req, res) => {
 
 // 🔹 Test Pass Endpoint
 app.get('/test-pass', async (req, res) => {
-  // تنظيف الـ Key من أي مسافات زيادة
   const cleanKey = API_KEY.trim();
   
-  console.log("Attempting Pass2U request with Key length:", cleanKey.length);
-
   try {
-    const response = await axios.get(
-      `https://api.pass2u.net/v2/passes/${PASS_ID}`, 
-      {
-        headers: { 
-          "x-api-key": cleanKey,
-          "Accept": "application/json"
-        },
-        timeout: 10000
-      }
-    );
-    // لو نجح هيرد بالبيانات
+    const response = await axios({
+      method: 'get',
+      url: `https://api.pass2u.net/v2/passes/${PASS_ID}`, // الـ URL الصح للكروت
+      headers: { 
+        'x-api-key': cleanKey,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      timeout: 10000
+    });
+
     res.json({
       success: true,
       data: response.data
