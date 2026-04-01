@@ -4,15 +4,11 @@ const axios = require('axios');
 const app = express();
 app.use(express.json());
 
-// ======================================
-// ⚡ Environment Variables
-// ======================================
-const API_KEY = process.env.API_KEY; // خليها من Railway Dashboard
+// Environment Variables
+const API_KEY = process.env.API_KEY;  // لازم يكون مضبوط على Railway
 const PASS_ID = "Jn11aKQqu5TM";
 
-// ======================================
-// ✅ Health Check Endpoint
-// ======================================
+// 🔹 Health Endpoint (آمن تمامًا)
 app.get('/health', (req, res) => {
   res.json({
     status: "ok",
@@ -21,30 +17,32 @@ app.get('/health', (req, res) => {
   });
 });
 
-// ======================================
-// ✅ Test Pass Endpoint
-// ======================================
-// app.get('/test-pass', async (req, res) => {
-//   if (!API_KEY) {
-//     return res.status(500).json({ error: "API_KEY not set in environment" });
-//   }
+// 🔹 Test Pass Endpoint (يحمي السيرفر من أي خطأ)
+app.get('/test-pass', async (req, res) => {
+  if (!API_KEY) {
+    return res.status(400).json({ error: "API_KEY not set in environment variables" });
+  }
 
-//   try {
-//     const response = await axios.get(
-//       `https://api.pass2u.net/v2/pass/${PASS_ID}`,
-//       { headers: { "X-API-Key": API_KEY } }
-//     );
+  try {
+    const response = await axios.get(
+      `https://api.pass2u.net/v2/pass/${PASS_ID}`,
+      {
+        headers: { "X-API-Key": API_KEY },
+        timeout: 5000 // Timeout 5 ثواني
+      }
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error("Error calling Pass2U API:", error.message);
+    res.status(500).json({
+      error: error.response?.data || error.message
+    });
+  }
+});
 
-//     res.json(response.data);
-//   } catch (error) {
-//     res.status(500).json({
-//       error: error.response?.data || error.message
-//     });
-//   }
-// });
-
-// ======================================
-// ⚡ Start Server on Railway Port
-// ======================================
+// 🔹 Port صح سواء محلي أو Railway
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
+
+app.listen(PORT, () => {
+  console.log(`Backend running on port ${PORT}`);
+});
