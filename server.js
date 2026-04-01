@@ -17,8 +17,12 @@ app.get('/health', (req, res) => {
   });
 });
 
-// 🔹 Test Pass Endpoint (يحمي السيرفر من أي خطأ)
 app.get('/test-pass', async (req, res) => {
+  console.log("Using API Key starting with:", API_KEY?.substring(0, 4));
+
+
+// 🔹 Test Pass Endpoint (يحمي السيرفر من أي خطأ)
+
   if (!API_KEY) {
     return res.status(400).json({ error: "API_KEY not set in environment variables" });
   }
