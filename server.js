@@ -26,25 +26,30 @@ app.get('/test-pass', async (req, res) => {
       url: `https://api.pass2u.net/v2/models/${MODEL_ID}/passes/${PASS_ID}`,
       headers: { 
         'x-api-key': cleanKey,
-        // 💡 التعديل الجوهري هنا: بنقوله ابعتلنا الـ JSON بتاع الكارت
-        'Accept': 'application/json' 
+        'Accept': 'application/vnd.apple.pkpass' // وافقنا على شروطه
       },
+      responseType: 'arraybuffer', // عشان نستلم "ملف" مش "نص"
       timeout: 10000
     });
 
-    res.json({
-      success: true,
-      message: "Data Captured!",
-      data: response.data
-    });
+    // 💡 بنقول للمتصفح: "خد الملف ده نوعه كارت أبل واسمه pass.pkpass"
+    res.setHeader('Content-Type', 'application/vnd.apple.pkpass');
+    res.setHeader('Content-Disposition', 'attachment; filename=pass.pkpass');
+    
+    // ابعت الملف!
+    res.send(response.data);
 
   } catch (error) {
-    // لو لسه بيتدلع وبيطلب vnd.apple.pkpass، هنخليه يرجع الـ Raw Data
-    console.error("Pass2U Error:", error.response?.data || error.message);
-    res.status(error.response?.status || 500).json({
+    // لو حصل مشكلة، هنرجع نشوف الـ JSON بتاع الـ Error
+    let errorData = error.message;
+    if (error.response && error.response.data) {
+        errorData = error.response.data.toString(); // تحويل البافر لنص
+    }
+    
+    res.status(500).json({
       success: false,
-      error: error.response?.data || error.message,
-      tip: "If you want to download the file, change Accept to application/vnd.apple.pkpass"
+      error: errorData,
+      log: "Failed to fetch .pkpass file"
     });
   }
 });
