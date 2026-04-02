@@ -4,43 +4,49 @@ const axios = require('axios');
 const app = express();
 app.use(express.json());
 
-// 🔹 الـ Key والـ ID (الخطة البديلة لو الـ Environment Variables مجاتش)
+// 🔹 البيانات المستخرجة من الصور بتاعتك
 const API_KEY = process.env.API_KEY || "6355b99f8563ce45c198f5a9eaf45d2d";
-const PASS_ID = "Jn11aKQqu5TM";
+const MODEL_ID = "373769"; // الـ Model ID من الصورة الأخيرة
+const PASS_ID = "Jn11aKQqu5TM"; // الـ Pass ID من أول صورة
 
-// 🔹 Health Endpoint
+// 🔹 Health Check
 app.get('/health', (req, res) => {
-  res.json({
-    status: "ok",
-    message: "Backend is running",
-    time: new Date().toISOString()
-  });
+  res.json({ status: "ok", model: MODEL_ID });
 });
 
-// 🔹 Test Pass Endpoint (النسخة النهائية المضمونة)
+// 🔹 الحصول على بيانات الكارت (Get Pass Details)
 app.get('/test-pass', async (req, res) => {
   const cleanKey = API_KEY.trim();
   
   try {
-    const response = await axios.get(
-      `https://api.pass2u.net/v2/passes/${PASS_ID}?api_key=${cleanKey}`, // بعتنا الـ Key هنا
-      {
-        headers: { 
-          'Accept': 'application/json'
-        }
-      }
-    );
-    res.json({ success: true, data: response.data });
+    const response = await axios({
+      method: 'get',
+      // 💡 الـ URL الصح حسب الـ Documentation: models/{modelId}/passes/{passId}
+      url: `https://api.pass2u.net/v2/models/${MODEL_ID}/passes/${PASS_ID}`,
+      headers: { 
+        'x-api-key': cleanKey,
+        'Accept': 'application/json'
+      },
+      timeout: 10000
+    });
+
+    res.json({
+      success: true,
+      message: "Pass data retrieved successfully!",
+      data: response.data
+    });
+
   } catch (error) {
-    res.status(500).json({
+    console.error("Error fetching pass:", error.response?.data || error.message);
+    res.status(error.response?.status || 500).json({
       success: false,
       error: error.response?.data || error.message,
-      note: "Tried passing API Key in URL"
+      context: "Make sure API Key is correct in Railway Variables"
     });
   }
 });
-// 🔹 إعدادات السيرفر لـ Railway
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Backend is up and running on port ${PORT}`);
+  console.log(`Backend is running on port ${PORT}`);
 });
