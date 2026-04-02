@@ -23,7 +23,7 @@ app.get('/update-points', async (req, res) => {
 
   try {
     const response = await axios({
-      method: 'put', // الـ Method هنا لازم PUT حسب الكتالوج
+      method: 'put',
       url: `https://api.pass2u.net/v2/models/${MODEL_ID}/passes/${PASS_ID}`,
       headers: { 
         'x-api-key': cleanKey,
@@ -33,9 +33,9 @@ app.get('/update-points', async (req, res) => {
       data: {
         "fields": [
           {
-            "key": "points", // ده المفتاح اللي شفناه في صورتك
-            "value": "100",  // هنخلي النقاط 100
-            "changeMessage": "مبروك! نقاطك بقت %@" // الرسالة اللي هتظهر للمستخدم
+            "key": "field11", // 🎯 غيرنا المفتاح لـ field11 اللي إنت لقيته
+            "value": "150",   // جرب نخليها 150 نقطة المرة دي كـ تسته
+            "changeMessage": "نقاطك في بازوكا بقت %@" 
           }
         ]
       }
@@ -43,14 +43,15 @@ app.get('/update-points', async (req, res) => {
 
     res.json({
       success: true,
-      message: "Points updated successfully!",
-      updatedData: response.data
+      message: "Boom! Points updated to 150",
+      data: response.data
     });
 
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error.response?.data || error.message
+      error: error.response?.data || error.message,
+      tip: "تأكد إن field11 متعلم عليه Dynamic في الـ Dashboard"
     });
   }
 });
