@@ -15,41 +15,42 @@ app.get('/health', (req, res) => {
 });
 
 // 🔹 الحصول على بيانات الكارت (Get Pass Details)
-app.get('/test-pass', async (req, res) => {
+// 🔹 تحديث النقاط لـ 100 نقطة (تجربة)
+app.get('/update-points', async (req, res) => {
   const cleanKey = API_KEY.trim();
   const MODEL_ID = "373769"; 
   const PASS_ID = "Jn11aKQqu5TM";
 
   try {
     const response = await axios({
-      method: 'get',
+      method: 'put', // الـ Method هنا لازم PUT حسب الكتالوج
       url: `https://api.pass2u.net/v2/models/${MODEL_ID}/passes/${PASS_ID}`,
       headers: { 
         'x-api-key': cleanKey,
-        'Accept': 'application/vnd.apple.pkpass' // وافقنا على شروطه
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       },
-      responseType: 'arraybuffer', // عشان نستلم "ملف" مش "نص"
-      timeout: 10000
+      data: {
+        "fields": [
+          {
+            "key": "points", // ده المفتاح اللي شفناه في صورتك
+            "value": "100",  // هنخلي النقاط 100
+            "changeMessage": "مبروك! نقاطك بقت %@" // الرسالة اللي هتظهر للمستخدم
+          }
+        ]
+      }
     });
 
-    // 💡 بنقول للمتصفح: "خد الملف ده نوعه كارت أبل واسمه pass.pkpass"
-    res.setHeader('Content-Type', 'application/vnd.apple.pkpass');
-    res.setHeader('Content-Disposition', 'attachment; filename=pass.pkpass');
-    
-    // ابعت الملف!
-    res.send(response.data);
+    res.json({
+      success: true,
+      message: "Points updated successfully!",
+      updatedData: response.data
+    });
 
   } catch (error) {
-    // لو حصل مشكلة، هنرجع نشوف الـ JSON بتاع الـ Error
-    let errorData = error.message;
-    if (error.response && error.response.data) {
-        errorData = error.response.data.toString(); // تحويل البافر لنص
-    }
-    
     res.status(500).json({
       success: false,
-      error: errorData,
-      log: "Failed to fetch .pkpass file"
+      error: error.response?.data || error.message
     });
   }
 });
