@@ -17,35 +17,37 @@ app.get('/health', (req, res) => {
 // 🔹 الحصول على بيانات الكارت (Get Pass Details)
 app.get('/test-pass', async (req, res) => {
   const cleanKey = API_KEY.trim();
-  
+  const MODEL_ID = "373769"; 
+  const PASS_ID = "Jn11aKQqu5TM";
+
   try {
     const response = await axios({
       method: 'get',
-      // 💡 الـ URL الصح حسب الـ Documentation: models/{modelId}/passes/{passId}
       url: `https://api.pass2u.net/v2/models/${MODEL_ID}/passes/${PASS_ID}`,
       headers: { 
         'x-api-key': cleanKey,
-        'Accept': 'application/json'
+        // 💡 التعديل الجوهري هنا: بنقوله ابعتلنا الـ JSON بتاع الكارت
+        'Accept': 'application/json' 
       },
       timeout: 10000
     });
 
     res.json({
       success: true,
-      message: "Pass data retrieved successfully!",
+      message: "Data Captured!",
       data: response.data
     });
 
   } catch (error) {
-    console.error("Error fetching pass:", error.response?.data || error.message);
+    // لو لسه بيتدلع وبيطلب vnd.apple.pkpass، هنخليه يرجع الـ Raw Data
+    console.error("Pass2U Error:", error.response?.data || error.message);
     res.status(error.response?.status || 500).json({
       success: false,
       error: error.response?.data || error.message,
-      context: "Make sure API Key is correct in Railway Variables"
+      tip: "If you want to download the file, change Accept to application/vnd.apple.pkpass"
     });
   }
 });
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Backend is running on port ${PORT}`);
